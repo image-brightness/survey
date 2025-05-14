@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Research Survey</title>
+	<script src="https://www.gstatic.com/firebasejs/11.7.1/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore-compat.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -94,6 +96,10 @@
             max-width: 100%;
             border-radius: 4px;
         }
+		.option p {
+			margin: 4px 0 0 0; /* tighter spacing */
+			font-size: 14px; /* optional: smaller font */
+		}
         .question-indicator {
             font-size: 14px;
             color: #7f8c8d;
@@ -129,7 +135,7 @@
 				Further information is available via the University of Leeds <a href="https://dataprotection.leeds.ac.uk/wp-content/uploads/sites/48/2019/02/Research-Privacy-Notice.pdf">Privacy Notice</a>.
 				</p>
             
-            <p>By clicking "Start Survey", you consent to participate in this research.</p>
+            <p>By clicking "Start Survey", you consent to participate in this research. Please do not refresh the page until submission.</p>
         </div>
         <button id="start-button">Start Survey</button>
     </div>
@@ -141,29 +147,29 @@
             <div class="progress-bar" id="progress-bar"></div>
         </div>
         
-        <h2>Select the most appealing image:</h2>
+        <h2>Choose the image you find most enhanced:</h2>
         
         <div class="original-image">
             <h3>Original Image:</h3>
-            <img id="original-image" src="/api/placeholder/500/300" alt="Original image">
+            <img id="original-image" src="images/original/1.png" alt="Original image">
         </div>
         
         <h3>Options:</h3>
         <div class="options-container">
             <div class="option" data-option="1">
-                <img src="/api/placeholder/300/200" alt="Option 1">
+                <img src="images/original/1.png" alt="Option 1">
                 <p>Option 1</p>
             </div>
             <div class="option" data-option="2">
-                <img src="/api/placeholder/300/200" alt="Option 2">
+                <img src="images/original/1.png" alt="Option 2">
                 <p>Option 2</p>
             </div>
             <div class="option" data-option="3">
-                <img src="/api/placeholder/300/200" alt="Option 3">
+                <img src="images/original/1.png" alt="Option 3">
                 <p>Option 3</p>
             </div>
             <div class="option" data-option="4">
-                <img src="/api/placeholder/300/200" alt="Option 4">
+                <img src="images/original/1.png" alt="Option 4">
                 <p>Option 4</p>
             </div>
         </div>
@@ -174,13 +180,27 @@
     <!-- Thank You Page -->
     <div id="thank-you" class="container hidden">
         <h1>Thank You!</h1>
-        <p>Thank you for completing the survey. Your responses have been recorded.</p>
+        <p>Thank you for completing the survey. Please click on "Submit" if you want your responses to be recorded.</p>
         <p>Your participation is greatly appreciated and will contribute to our research project.</p>
         <div id="submission-status"></div>
         <button id="submit-button">Submit</button>
     </div>
 
     <script>
+		// Your web app's Firebase configuration
+		const firebaseConfig = {
+			apiKey: "AIzaSyAGfQaodj4lmiNv7UgvSdhOlPgEExWgu8Y",
+			authDomain: "improved-sci-survey.firebaseapp.com",
+			projectId: "improved-sci-survey",
+			storageBucket: "improved-sci-survey.firebasestorage.app",
+			messagingSenderId: "787959686235",
+			appId: "1:787959686235:web:7ea4181767ef7c7b1a0b7e"
+		};
+
+		// Initialize Firebase
+		const app = firebase.initializeApp(firebaseConfig);
+		const db = firebase.firestore();
+		
         // Survey state
         const state = {
             currentQuestion: 1,
@@ -196,6 +216,8 @@
         if (localStorage.getItem('surveySubmitted') === 'true') {
             state.submitted = true;
         }
+		// Debug repeated submissions.
+		state.submitted = false;
 
         // DOM Elements
         const introductionPage = document.getElementById('introduction');
@@ -352,11 +374,23 @@
             // Disable submit button
             submitButton.disabled = true;
             
-            // Update submission status message
-            submissionStatus.innerHTML = '<p style="color: #27ae60; font-weight: bold;">Survey successfully submitted! Thank you for your participation.</p>';
-            
-            // In a real application, you would send the data to a server here
-            console.log('Survey submitted:', state.answers);
+            // Save to Firestore
+			db.collection("surveyResponses").add({
+				timestamp: new Date(),
+				responses: state.answers
+			})
+			.then(() => {
+				submissionStatus.innerHTML = '<p style="color: #27ae60; font-weight: bold;">Survey successfully submitted! Thank you for your participation.</p>';
+				console.log("Survey data saved to Firestore");
+			})
+			.catch((error) => {
+				submissionStatus.innerHTML = '<p style="color: #e74c3c; font-weight: bold;">Something went wrong, please try again later.</p>';
+				// Set submit status to false
+				state.submitted = false;
+				submitButton.disabled = false;
+				localStorage.setItem('surveySubmitted', 'false');
+				console.error("Error writing document: ", error);
+			});
             
             // Log the detailed results to console for testing/debugging
             console.log('Detailed results:');
