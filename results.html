@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Survey Results</title>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    canvas {
+      margin-top: 40px;
+    }
+    .summary {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Survey Results</h1>
+  <p>This chart shows how often each enhancement option was selected as the best.</p>
+  <div class="summary" id="summaryText">Loading...</div>
+  <canvas id="resultsChart" width="600" height="400"></canvas>
+
+  <script>
+    // 🔧 Replace with your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAGfQaodj4lmiNv7UgvSdhOlPgEExWgu8Y",
+      authDomain: "improved-sci-survey.firebaseapp.com",
+      projectId: "improved-sci-survey",
+      storageBucket: "improved-sci-survey.firebasestorage.app",
+      messagingSenderId: "787959686235",
+      appId: "1:787959686235:web:7ea4181767ef7c7b1a0b7e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const counts = {
+      sci: 0,
+      hsl: 0,
+      ycbcr: 0,
+      mixed: 0
+    };
+
+    db.collection("surveyResponses").get().then(snapshot => {
+      let totalVotes = 0;
+
+      snapshot.forEach(doc => {
+        const responses = doc.data().responses;
+        Object.values(responses).forEach(answer => {
+          const type = answer.type;
+          if (counts[type] !== undefined) {
+            counts[type]++;
+            totalVotes++;
+          }
+        });
+      });
+
+      // Compute percentages
+      const percentages = {};
+      for (const key in counts) {
+        percentages[key] = ((counts[key] / totalVotes) * 100).toFixed(1);
+      }
+
+      // Display summary
+      document.getElementById('summaryText').innerHTML = `
+        Total selections: ${totalVotes}<br>
+        SCI: ${counts.sci} (${percentages.sci}%)<br>
+        HSL: ${counts.hsl} (${percentages.hsl}%)<br>
+        YCbCr: ${counts.ycbcr} (${percentages.ycbcr}%)<br>
+        Mixed: ${counts.mixed} (${percentages.mixed}%)
+      `;
+
+      // Show chart
+      displayChart(counts, percentages);
+    }).catch(error => {
+      document.getElementById('summaryText').textContent = "Failed to load data: " + error.message;
+      console.error("Error fetching data:", error);
+    });
+
+    function displayChart(counts, percentages) {
+      const ctx = document.getElementById('resultsChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['SCI', 'HSL', 'YCbCr', 'Mixed'],
+          datasets: [{
+            label: 'Number of Selections',
+            data: [counts.sci, counts.hsl, counts.ycbcr, counts.mixed],
+            backgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#9b59b6']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const index = context.dataIndex;
+                  const values = [percentages.sci, percentages.hsl, percentages.ycbcr, percentages.mixed];
+                  return `${context.dataset.label}: ${context.raw} (${values[index]}%)`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              precision: 0
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
