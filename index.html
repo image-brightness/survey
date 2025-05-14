@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Survey</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #2ecc71;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .original-image {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .original-image img {
+            max-width: 450px;
+            height: auto;
+            border-radius: 4px;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+            margin-bottom: 30px; /* Add space before the next button */
+        }
+        .option {
+            border: 2px solid transparent;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .option:hover {
+            border-color: #3498db;
+        }
+        .option.selected {
+            border-color: #3498db;
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        .option img {
+            max-width: 100%;
+            border-radius: 4px;
+        }
+        .question-indicator {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Introduction Page -->
+    <div id="introduction" class="container">
+        <h1>Low-Light Image Enhancement Research Survey</h1>
+        <div class="consent-section">
+            <h2>Study Information</h2>
+				<p>
+				You are being invited to participate in a research study titled "Improved Self-Calibrated Illumination Framework for Low-Light Image Enhancement". 
+				This study is being done by Kevin Tsai and Abdulrahman Altahhan from the University of Leeds.
+				</p>
+            
+            <h2>Task Description</h2>
+				<p>
+				The purpose of this research study is enhancing low-light images using neural networks and will take you approximately 3 minutes to complete. 
+				You will be presented with a series of original images, each accompanied by four variations. 
+				For each set, please choose the image you find most enhanced—whether in terms of brightness, color, overall appeal, or any other criteria you consider relevant. 
+				The survey consists of 10 questions in total.
+				Your participation in this study is entirely voluntary. You do not have to answer any questions you do not want to.
+				</p>
+            
+            <h2>Participant Consent</h2>
+				<p>
+				We believe there are no known risks associated with this research study; however, as with any online related activity the risk of a breach is always possible. 
+				To the best of our ability your participation in this study will remain confidential, and only anonymised data will be published. 
+				We will minimise any risks by not recording your personal information such as name, ip address, location etc. 
+				Further information is available via the University of Leeds <a href="https://dataprotection.leeds.ac.uk/wp-content/uploads/sites/48/2019/02/Research-Privacy-Notice.pdf">Privacy Notice</a>.
+				</p>
+            
+            <p>By clicking "Start Survey", you consent to participate in this research.</p>
+        </div>
+        <button id="start-button">Start Survey</button>
+    </div>
+
+    <!-- Question Page -->
+    <div id="question-container" class="container hidden">
+        <div class="question-indicator">Question <span id="current-question">1</span> of 10</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <h2>Select the most appealing image:</h2>
+        
+        <div class="original-image">
+            <h3>Original Image:</h3>
+            <img id="original-image" src="/api/placeholder/500/300" alt="Original image">
+        </div>
+        
+        <h3>Options:</h3>
+        <div class="options-container">
+            <div class="option" data-option="1">
+                <img src="/api/placeholder/300/200" alt="Option 1">
+                <p>Option 1</p>
+            </div>
+            <div class="option" data-option="2">
+                <img src="/api/placeholder/300/200" alt="Option 2">
+                <p>Option 2</p>
+            </div>
+            <div class="option" data-option="3">
+                <img src="/api/placeholder/300/200" alt="Option 3">
+                <p>Option 3</p>
+            </div>
+            <div class="option" data-option="4">
+                <img src="/api/placeholder/300/200" alt="Option 4">
+                <p>Option 4</p>
+            </div>
+        </div>
+        
+        <button id="next-button" disabled>Next</button>
+    </div>
+
+    <!-- Thank You Page -->
+    <div id="thank-you" class="container hidden">
+        <h1>Thank You!</h1>
+        <p>Thank you for completing the survey. Your responses have been recorded.</p>
+        <p>Your participation is greatly appreciated and will contribute to our research project.</p>
+        <div id="submission-status"></div>
+        <button id="submit-button">Submit</button>
+    </div>
+
+    <script>
+        // Survey state
+        const state = {
+            currentQuestion: 1,
+            totalQuestions: 10,
+            answers: {},
+            selectedOption: null,
+            optionTypes: ["sci", "hsl", "ycbcr", "mixed"], // The 4 option types
+            currentMapping: {}, // Maps option position to folder type
+            submitted: false // Track if survey has been submitted
+        };
+
+        // Check if survey was already submitted (persists across page refreshes)
+        if (localStorage.getItem('surveySubmitted') === 'true') {
+            state.submitted = true;
+        }
+
+        // DOM Elements
+        const introductionPage = document.getElementById('introduction');
+        const questionContainer = document.getElementById('question-container');
+        const thankYouPage = document.getElementById('thank-you');
+        const startButton = document.getElementById('start-button');
+        const nextButton = document.getElementById('next-button');
+        const submitButton = document.getElementById('submit-button');
+        const submissionStatus = document.getElementById('submission-status');
+        const progressBar = document.getElementById('progress-bar');
+        const currentQuestionEl = document.getElementById('current-question');
+        const optionElements = document.querySelectorAll('.option');
+        
+        // Event Listeners
+        startButton.addEventListener('click', startSurvey);
+        nextButton.addEventListener('click', nextQuestion);
+        submitButton.addEventListener('click', submitSurvey);
+        
+        optionElements.forEach(option => {
+            option.addEventListener('click', () => selectOption(option));
+        });
+
+        // Check if already submitted when page loads
+        checkSubmissionStatus();
+
+        // Function to check submission status and update UI accordingly
+        function checkSubmissionStatus() {
+            if (state.submitted) {
+                submitButton.disabled = true;
+                submissionStatus.innerHTML = '<p style="color: #e74c3c; font-weight: bold;">This survey has already been submitted.</p>';
+            }
+        }
+
+        // Shuffle array function (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Generate random option placement
+        function randomizeOptionPlacement() {
+            // Create a copy of option types to shuffle
+            const shuffled = shuffleArray([...state.optionTypes]);
+            
+            // Create a mapping of position to option type
+            state.currentMapping = {
+                1: shuffled[0],
+                2: shuffled[1],
+                3: shuffled[2],
+                4: shuffled[3]
+            };
+            
+            return state.currentMapping;
+        }
+
+        // Start the survey
+        function startSurvey() {
+            introductionPage.classList.add('hidden');
+            questionContainer.classList.remove('hidden');
+            updateQuestion();
+        }
+
+        // Select an option
+        function selectOption(option) {
+            // Clear previous selection
+            optionElements.forEach(el => el.classList.remove('selected'));
+            
+            // Mark new selection
+            option.classList.add('selected');
+            const optionNumber = option.dataset.option;
+            
+            // Store both the position and the actual option type (folder)
+            state.selectedOption = {
+                position: optionNumber,
+                type: state.currentMapping[optionNumber]
+            };
+            
+            // Enable next button
+            nextButton.disabled = false;
+        }
+
+        // Go to next question
+        function nextQuestion() {
+            // Save the answer
+            state.answers[state.currentQuestion] = state.selectedOption;
+            
+            // Move to next question
+            state.currentQuestion++;
+            
+            if (state.currentQuestion > state.totalQuestions) {
+                // Survey complete, show thank you page
+                questionContainer.classList.add('hidden');
+                thankYouPage.classList.remove('hidden');
+                // Check submission status when showing thank you page
+                checkSubmissionStatus();
+            } else {
+                // Update UI for next question
+                updateQuestion();
+            }
+        }
+
+        // Update question UI
+        function updateQuestion() {
+            // Update question number
+            currentQuestionEl.textContent = state.currentQuestion;
+            
+            // Update progress bar
+            const progress = ((state.currentQuestion - 1) / state.totalQuestions) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Clear previous selection
+            optionElements.forEach(el => el.classList.remove('selected'));
+            
+            // Reset selected option
+            state.selectedOption = null;
+            
+            // Disable next button until an option is selected
+            nextButton.disabled = true;
+            
+            // Randomize option placements for this question
+            const mapping = randomizeOptionPlacement();
+            
+            // Set original image from original folder
+            document.getElementById('original-image').src = `images/original/${state.currentQuestion}.png`;
+            
+            // Set each option image based on the randomized mapping
+            optionElements.forEach((option, index) => {
+                const optionNumber = index + 1;
+                const optionType = mapping[optionNumber]; // Get the folder for this position
+                const img = option.querySelector('img');
+                img.src = `images/${optionType}/${state.currentQuestion}.png`;
+                
+                // Update the option label to match the position (but not revealing the type)
+                const label = option.querySelector('p');
+                label.textContent = `Option ${optionNumber}`;
+            });
+        }
+
+        // Submit the survey
+        function submitSurvey() {
+            // Prevent multiple submissions
+            if (state.submitted) {
+                alert('This survey has already been submitted. Thank you for your participation.');
+                return;
+            }
+            
+            // Mark as submitted
+            state.submitted = true;
+            localStorage.setItem('surveySubmitted', 'true');
+            
+            // Disable submit button
+            submitButton.disabled = true;
+            
+            // Update submission status message
+            submissionStatus.innerHTML = '<p style="color: #27ae60; font-weight: bold;">Survey successfully submitted! Thank you for your participation.</p>';
+            
+            // In a real application, you would send the data to a server here
+            console.log('Survey submitted:', state.answers);
+            
+            // Log the detailed results to console for testing/debugging
+            console.log('Detailed results:');
+            Object.keys(state.answers).forEach(question => {
+                console.log(`Question ${question}: Selected option ${state.answers[question].position} (${state.answers[question].type})`);
+            });
+        }
+    </script>
+</body>
+</html>
