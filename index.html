@@ -147,7 +147,7 @@
             <div class="progress-bar" id="progress-bar"></div>
         </div>
         
-        <h2>Choose the image you find most enhanced:</h2>
+        <h2>Select the option that best enhances the original image:</h2>
         
         <div class="original-image">
             <h3>Original Image:</h3>
@@ -216,8 +216,6 @@
         if (localStorage.getItem('surveySubmitted') === 'true') {
             state.submitted = true;
         }
-		// Debug repeated submissions.
-		state.submitted = false;
 
         // DOM Elements
         const introductionPage = document.getElementById('introduction');
